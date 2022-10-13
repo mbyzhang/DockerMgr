@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block content %}
+<button class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#modalCreateContainer">创建</button>
+<h1>容器</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col">状态</th>
+            <th scope="col">名称</th>
+            <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for container in containers %}
+        <tr>
+            <th scope="row"><code>{{ container.short_id }}</code></th>
+            <th>
+                {% if container.status == 'running' %}
+                <span class="badge bg-success">运行中</span>
+                {% elif container.status == 'exited' %}
+                <span class="badge bg-danger">已停止</span>
+                {% else %}
+                <span class="badge bg-secondary">{{ container.status }}</span>
+                {% endif %}
+            </th>
+            <th>{{ container.name }}</th>
+            <th>
+                <a href="{{ url_for('handle_container_logs', container_id=container.id) }}">日志</a>
+                <span class="dropdown">
+                    <a href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                        更多操作
+                    </a>
+
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <li>
+                            <form method="post">
+                                <input type="hidden" name="id" value="{{ container.id }}" />
+                                <input type="hidden" name="action" value="start" />
+                                <button type="submit" class="dropdown-item"><i class="bi-play-fill"></i> 启动</button>
+                            </form>
+                        </li>
+                        <li>
+                            <form method="post" onsubmit="return confirm('确定要停止容器 {{ container.name }} 么？');">
+                                <input type="hidden" name="id" value="{{ container.id }}" />
+                                <input type="hidden" name="action" value="stop" />
+                                <button type="submit" class="dropdown-item"><i class="bi-stop-fill"></i> 停止</button>
+                            </form>
+                        </li>
+                        <li>
+                            <form method="post" onsubmit="return confirm('确定要删除容器 {{ container.name }} 么？');">
+                                <input type="hidden" name="id" value="{{ container.id }}" />
+                                <input type="hidden" name="action" value="remove" />
+                                <button type="submit" class="dropdown-item"><i class="bi-trash-fill"></i> 删除</button>
+                            </form>
+                        </li>
+                    </ul>
+                </span>
+            </th>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<!-- Modal -->
+<div class="modal fade" id="modalCreateContainer" tabindex="-1" aria-labelledby="modalCreateContainerLabel"
+    aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalCreateContainerLabel">创建容器</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">名称</label>
+                        <input type="text" class="form-control" id="name" name="name" placeholder="请输入容器名称">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary">创建</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
